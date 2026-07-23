@@ -2,6 +2,7 @@ from flask_jwt_extended import create_access_token
 from flask_restx import Namespace, Resource, fields
 
 from app.services import facade
+import datetime
 
 api = Namespace("auth", description="Authentication operations")
 
@@ -40,6 +41,7 @@ class Login(Resource):
         access_token = create_access_token(
             identity=str(user.id),
             additional_claims={"is_admin": user.is_admin},
+            expires_delta=datetime.timedelta(days=1)
         )
 
         return {"access_token": access_token}, 200
