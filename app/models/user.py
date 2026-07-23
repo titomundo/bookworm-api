@@ -5,7 +5,6 @@ from app.models.base import BaseModel
 
 
 class User(BaseModel):
-    _emails = set()
     __tablename__ = "users"
 
     first_name = db.Column("first_name", db.String(50), nullable=False)
@@ -41,8 +40,9 @@ class User(BaseModel):
         if not is_valid_email(email):
             raise ValueError("Not a valid email")
 
-        if email in User._emails:
-            raise ValueError("Email is already in use")
+        # check if email is registed
+        if self.query.filter(User.email == email).first():
+            raise ValueError("Email already registerd")
 
         return email
 
