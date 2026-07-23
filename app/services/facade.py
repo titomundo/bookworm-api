@@ -1,6 +1,6 @@
 from app.database.repository import (BusinessRepository, LocationRepository,
                                      ReservationRepository, UserRepository)
-from app.models import business
+from app.models import business, location
 from app.models.business import Business
 from app.models.location import Location
 from app.models.reservation import Reservation
@@ -34,7 +34,7 @@ class Facade:
     def get_user_by_email(self, email) -> User | None:
         return self.user_repo.get_user_by_email(email)
 
-    """Business Facade Method"""
+    """Business Facade Methods"""
 
     def create_business(self, business_data) -> Business:
         business = Business(**business_data)
@@ -55,3 +55,22 @@ class Facade:
 
     def delete_business(self, business_id):
         self.business_repo.delete(business_id)
+
+    """Location Facade Methods"""
+
+    def create_location(self, location_data) -> Location:
+        location = Location(**location_data)
+        self.location_repo.add(location)
+        return location
+
+    def get_location(self, location_id) -> Location | None:
+        return self.location_repo.get(location_id)
+
+    def get_all_locations(self) -> list[Location]:
+        return self.location_repo.get_all()
+
+    def update_location(self, location_id, location_data) -> Location | None:
+        return self.location_repo.update(location_id, location_data)
+
+    def delete_location(self, location_id):
+        self.location_repo.delete(location_id)

@@ -15,6 +15,8 @@ class Business(BaseModel):
         "owner_id", db.String(36), db.ForeignKey("users.id"), nullable=False
     )
 
+    locations = db.relationship("Location", backref="business", lazy=True)
+
     @validates("name")
     def validate_name(self, key, name):
         if len(name) > 128:

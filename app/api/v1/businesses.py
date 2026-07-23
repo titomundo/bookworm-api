@@ -58,6 +58,7 @@ class BusinessList(Resource):
         businesses = [b.as_dict() for b in current_user.businesses]
         return businesses, 200
 
+
 @api.route("/<business_id>")
 class BusinessResource(Resource):
     @jwt_required()
@@ -77,3 +78,29 @@ class BusinessResource(Resource):
 
         facade.delete_business(business_id)
         return {"message": "Business deleted successfully"}, 200
+
+
+@api.route("/<business_id>/locations")
+class BusinessLocationList(Resource):
+    @jwt_required()
+    @api.response(200, "List of locations by businesses")
+    @api.response(403, "Unauthorized")
+    @api.response(404, "Business or User not found")
+    def get(self, business_id):
+        current_user = facade.get_user(get_jwt_identity())
+        business = facade.get_business(business_id)
+
+        if not current_user:
+            return {"error": "user not found"}, 404
+
+        if not current_user.is_admin:
+            return {"error": "Unauthorized"}, 403
+
+        if not business:
+            return {"error": "Business not found"}, 404
+
+        if current_user.id != business.owner_id:
+            return {"error": "Unauthorized"}, 403
+
+        locations = [l.as_dict() for l in business.locations]
+        return locations, 200

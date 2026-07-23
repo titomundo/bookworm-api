@@ -14,6 +14,7 @@ class User(BaseModel):
     is_admin = db.Column("is_admin", db.Boolean, default=False)
 
     businesses = db.relationship("Business", backref="owner", lazy=True)
+    locations = db.relationship("Location", backref="owner", lazy=True)
 
     @validates("first_name")
     def validate_first_name(self, key, first_name):
