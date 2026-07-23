@@ -1,3 +1,5 @@
+import re
+
 from flask import Flask
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
@@ -8,6 +10,15 @@ from flask_sqlalchemy import SQLAlchemy
 bcrypt = Bcrypt()
 jwt = JWTManager()
 db = SQLAlchemy()
+
+
+def is_valid_email(email):
+    regex = r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,7}"
+
+    if not re.match(regex, email) or not email.strip():
+        return False
+
+    return True
 
 
 def create_app(config_class="config.DevelopmentConfig"):

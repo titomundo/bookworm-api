@@ -1,14 +1,12 @@
-import re
-
 from sqlalchemy.orm import validates
 
 from app import bcrypt, db
 from app.models.base import BaseModel
+from app import is_valid_email
 
 
 class User(BaseModel):
     _emails = set()
-    _email_regex = r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,7}"
     __tablename__ = "users"
 
     first_name = db.Column("first_name", db.String(50), nullable=False)
@@ -16,6 +14,8 @@ class User(BaseModel):
     email = db.Column("email", db.String(120), nullable=False, unique=True)
     password = db.Column("password", db.String(128), nullable=False)
     is_admin = db.Column("is_admin", db.Boolean, default=False)
+
+    businesses = db.relationship("Business", backref="owner", lazy=True)
 
     @validates("first_name")
     def validate_first_name(self, key, first_name):
@@ -39,7 +39,7 @@ class User(BaseModel):
 
     @validates("email")
     def validate_email(self, key, email):
-        if not re.match(self._email_regex, email) or not email.strip():
+        if not is_valid_email(email):
             raise ValueError("Not a valid email")
 
         if email in User._emails:
