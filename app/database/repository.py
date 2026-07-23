@@ -89,6 +89,9 @@ class BusinessRepository(SQLAlchemyRepository):
     def __init__(self):
         super().__init__(Business)
 
+    def get_business_by_email(self, email):
+        return self.model.query.filter_by(email=email).first()
+
 
 class ReservationRepository(SQLAlchemyRepository):
     def __init__(self):

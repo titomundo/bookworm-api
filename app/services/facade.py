@@ -32,3 +32,22 @@ class Facade:
 
     def get_user_by_email(self, email) -> User | None:
         return self.user_repo.get_user_by_email(email)
+
+    """Business Facade Method"""
+
+    def create_business(self, business_data) -> Business:
+        business = Business(**business_data)
+        self.business_repo.add(business)
+        return business
+
+    def get_business(self, business_id) -> Business | None:
+        return self.business_repo.get(business_id)
+
+    def get_all_businesses(self) -> list[Business]:
+        return self.business_repo.get_all()
+
+    def update_business(self, business_id, business_data) -> Business | None:
+        return self.business_repo.update(business_id, business_data)
+
+    def get_business_by_email(self, email) -> Business | None:
+        return self.business_repo.get_business_by_email(email)

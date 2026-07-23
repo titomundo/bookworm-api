@@ -6,7 +6,6 @@ from app.services import facade
 
 api = Namespace("users", description="User operations")
 
-
 user_model = api.model(
     "User",
     {
@@ -18,6 +17,7 @@ user_model = api.model(
         "password": fields.String(required=True, description="User Password"),
     },
 )
+
 
 @api.route("/profile")
 class UserProfile(Resource):

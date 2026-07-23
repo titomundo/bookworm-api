@@ -1,3 +1,3 @@
-from app.services.facade import Facade 
+from app.services.facade import Facade
 
 facade = Facade()

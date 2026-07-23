@@ -1,8 +1,7 @@
 from sqlalchemy.orm import validates
 
-from app import bcrypt, db
+from app import bcrypt, db, is_valid_email
 from app.models.base import BaseModel
-from app import is_valid_email
 
 
 class User(BaseModel):
