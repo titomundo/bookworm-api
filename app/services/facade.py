@@ -1,5 +1,6 @@
 from app.database.repository import (BusinessRepository, LocationRepository,
                                      ReservationRepository, UserRepository)
+from app.models import business
 from app.models.business import Business
 from app.models.location import Location
 from app.models.reservation import Reservation
@@ -51,3 +52,6 @@ class Facade:
 
     def get_business_by_email(self, email) -> Business | None:
         return self.business_repo.get_business_by_email(email)
+
+    def delete_business(self, business_id):
+        self.business_repo.delete(business_id)

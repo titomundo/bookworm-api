@@ -49,7 +49,7 @@ class BusinessList(Resource):
     @api.response(403, "Invalid credentials")
     @jwt_required()
     def get(self):
-        """Get list of all businesses"""
+        """Get list of all businesses for the current user"""
         current_user = facade.get_user(get_jwt_identity())
 
         if not current_user:
@@ -57,3 +57,23 @@ class BusinessList(Resource):
 
         businesses = [b.as_dict() for b in current_user.businesses]
         return businesses, 200
+
+@api.route("/<business_id>")
+class BusinessResource(Resource):
+    @jwt_required()
+    @api.response(200, "Business deleted successfully")
+    @api.response(404, "Business not found")
+    @api.response(403, "Unauthorized")
+    def delete(self, business_id):
+        """Delete a business"""
+        business = facade.get_business(business_id)
+        current_user = facade.get_user(get_jwt_identity())
+
+        if not current_user:
+            return {"error": "invalid credentials"}, 403
+
+        if not business:
+            return {"error": "business not found"}, 404
+
+        facade.delete_business(business_id)
+        return {"message": "Business deleted successfully"}, 200
