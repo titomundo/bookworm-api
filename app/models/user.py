@@ -14,7 +14,26 @@ class User(BaseModel):
     is_admin = db.Column("is_admin", db.Boolean, default=False)
 
     businesses = db.relationship("Business", backref="owner", lazy=True)
-    locations = db.relationship("Location", backref="owner", lazy=True)
+
+    user_location = db.Table(
+        "user_location",
+        db.Column(
+            "user_id", db.String(36), db.ForeignKey("users.id"), primary_key=True
+        ),
+        db.Column(
+            "location_id",
+            db.String(36),
+            db.ForeignKey("locations.id"),
+            primary_key=True,
+        ),
+    )
+
+    locations = db.relationship(
+        "Location",
+        secondary=user_location,
+        lazy="subquery",
+        backref=db.backref("users", lazy=True),
+    )
 
     @validates("first_name")
     def validate_first_name(self, key, first_name):

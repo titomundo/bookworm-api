@@ -1,4 +1,4 @@
-from flask_jwt_extended import get_jwt
+from flask_jwt_extended import get_jwt, get_jwt_identity
 from flask_jwt_extended.view_decorators import jwt_required
 from flask_restx import Namespace, Resource, fields
 
@@ -21,7 +21,16 @@ user_model = api.model(
 
 @api.route("/profile")
 class UserProfile(Resource):
-    pass
+    @jwt_required()
+    @api.response(200, "User profile")
+    @api.response(404, "User not found")
+    def get(self):
+        user = facade.get_user(get_jwt_identity())
+
+        if not user:
+            return {"error": "user not found"}, 404
+
+        return user.as_dict(), 200
 
 
 @api.route("/")
@@ -96,11 +105,3 @@ class UserResource(Resource):
             return {"error": "User not found"}, 404
 
         return {"message": "User updated successfully"}, 200
-
-
-@api.route("/<user_id>/businesses")
-class UserBusinessList(Resource):
-    @api.response(200, "List of businesses by user")
-    @api.response(404, "User not found")
-    def get(self, user_id):
-        pass

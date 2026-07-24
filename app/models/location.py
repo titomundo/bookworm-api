@@ -14,12 +14,12 @@ class Location(BaseModel):
         db.CheckConstraint("capacity > 0 AND capacity < 100"),
         nullable=False,
     )
-    owner_id = db.Column(
-        "owner_id", db.String(36), db.ForeignKey("users.id"), nullable=False
-    )
+    owner_id = db.Column("owner_id", db.String(36), db.ForeignKey("users.id"), nullable=False)
     business_id = db.Column(
         "business_id", db.String(36), db.ForeignKey("businesses.id"), nullable=False
     )
+
+    reservations = db.relationship("Reservation", backref="Location", lazy=True)
 
     @validates("name")
     def validate_name(self, key, name):
@@ -48,6 +48,7 @@ class Location(BaseModel):
             "name": self.name,
             "description": self.description,
             "capacity": self.capacity,
+            "owner_id": self.owner_id,
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat(),
         }

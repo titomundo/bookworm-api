@@ -47,13 +47,14 @@ class LocationList(Resource):
 
         try:
             location_data["owner_id"] = current_user.id
+            location_data["users"] = [current_user]
             new_location = facade.create_location(location_data)
         except ValueError as e:
             return {"error": str(e)}, 400
 
         return new_location.as_dict(), 200
 
-    @api.response(200, "List of businesses")
+    @api.response(200, "List of locations")
     @api.response(403, "Invalid credentials")
     @jwt_required()
     def get(self):
@@ -63,7 +64,13 @@ class LocationList(Resource):
         if not current_user:
             return {"error": "invalid credentials"}, 403
 
-        locations = [l.as_dict() for l in current_user.locations]
+        locations = []
+        for l in current_user.locations:
+            location = l.as_dict()
+
+            if location["owner_id"] == current_user.id:
+                locations.append(location)
+
         return locations, 200
 
 
