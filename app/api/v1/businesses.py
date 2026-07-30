@@ -96,6 +96,9 @@ class BusinessResource(Resource):
         if not business:
             return {"error": "business not found"}, 404
 
+        if business.owner_id != current_user.id:
+            return {"error": "Unauthorized"}, 403
+
         facade.delete_business(business_id)
         return {"message": "Business deleted successfully"}, 200
 
