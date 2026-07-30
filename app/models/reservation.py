@@ -31,7 +31,7 @@ class Reservation(BaseModel):
 
     @validates("reason")
     def validate_reason(self, key, reason):
-        if len(reason):
+        if len(reason) > 512:
             raise ValueError("Reason has a maximum length of 512 characters")
 
         return reason
