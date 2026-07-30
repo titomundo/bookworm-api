@@ -44,11 +44,13 @@ def create_app(config_class="config.DevelopmentConfig"):
     from app.api.v1.businesses import api as businesses_ns
     from app.api.v1.users import api as users_ns
     from app.api.v1.locations import api as locations_ns
+    from app.api.v1.reservations import api as reservations_ns
 
     # Placeholder for API namespaces (endpoints will be added later)
     api.add_namespace(users_ns, path="/api/v1/users")
     api.add_namespace(businesses_ns, path="/api/v1/businesses")
     api.add_namespace(locations_ns, path="/api/v1/locations")
     api.add_namespace(auth_ns, path="/api/v1/auth")
+    api.add_namespace(reservations_ns, path="/api/v1/reservations")
 
     return app

@@ -38,24 +38,12 @@ class Reservation(BaseModel):
 
     @validates("date")
     def validate_date(self, key, date):
-        date = datetime.strptime(date, "%Y-%m-%dT%h-%s")
+        date = datetime.strptime(date, "%Y-%m-%dT%H:%M")
 
         if not date:
             raise ValueError("Invalid Date")
 
         return date
-
-    @validates("slot")
-    def validate_slot(self, key, slot):
-        location = self.query.filter(Location.id == self.location_id).first()
-
-        if not location:
-            raise ValueError("Invalid Location ID")
-
-        if slot > location.capacity:
-            raise ValueError("Out of Index Slot number")
-
-        return slot
 
     @validates("status")
     def validate_status(self, key, status):
@@ -69,8 +57,9 @@ class Reservation(BaseModel):
             "id": self.id,
             "client_name": self.client_name,
             "reason": self.reason,
-            "date": self.date,
+            "date": self.date.isoformat(),
             "slot": self.slot,
+            "status": self.status,
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat(),
         }

@@ -74,3 +74,24 @@ class Facade:
 
     def delete_location(self, location_id):
         self.location_repo.delete(location_id)
+
+    """Reservation Facade Methods"""
+
+    def create_reservation(self, reservation_data) -> Reservation:
+        reservation = Reservation(**reservation_data)
+        self.reservation_repo.add(reservation)
+        return reservation
+
+    def get_reservation(self, reservation_id) -> Reservation | None:
+        return self.reservation_repo.get(reservation_id)
+
+    def get_all_reservations(self) -> list[Reservation]:
+        return self.reservation_repo.get_all()
+
+    def update_reservation(
+        self, reservation_id, reservation_data
+    ) -> Reservation | None:
+        return self.reservation_repo.update(reservation_id, reservation_data)
+
+    def delete_reservation(self, reservation_id):
+        self.reservation_repo.delete(reservation_id)
