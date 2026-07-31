@@ -4,7 +4,6 @@ from sqlalchemy.orm import validates
 
 from app import db
 from app.models.base import BaseModel
-from app.models.location import Location
 
 
 class Reservation(BaseModel):

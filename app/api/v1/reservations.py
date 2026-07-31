@@ -26,6 +26,17 @@ reservation_model = api.model(
 )
 
 
+def is_slot_occupied(slot):
+    if (
+        Reservation.query.filter(Reservation.slot == slot)
+        .filter((Reservation.status == "pending") | (Reservation.status == "ongoing"))
+        .first()
+    ):
+        return True
+
+    return False
+
+
 @api.route("/")
 class ReservationList(Resource):
     @jwt_required()
@@ -50,13 +61,7 @@ class ReservationList(Resource):
         if slot > location.capacity:
             return {"error": "Out of bounds slot"}, 400
 
-        if (
-            Reservation.query.filter(Reservation.slot == slot)
-            .filter(
-                (Reservation.status == "pending") | (Reservation.status == "ongoing")
-            )
-            .first()
-        ):
+        if is_slot_occupied(slot):
             return {"error": "Slot occupied"}, 400
 
         try:
@@ -99,6 +104,7 @@ class ReservationResource(Resource):
             return {"error": "Reservation not found"}, 404
 
         locations = [l.id for l in current_user.locations]
+
         if not reservation.location_id in locations:
             return {"error": "Unauthorized"}, 403
 
@@ -109,22 +115,33 @@ class ReservationResource(Resource):
     @api.response(403, "Unauthorized")
     @api.response(404, "Resource not found")
     def put(self, reservation_id):
-        """Update reservation details
-        TODO: validate slots before updating
-        """
+        """Update reservation details"""
         current_user = facade.get_user(get_jwt_identity())
         reservation = facade.get_reservation(reservation_id)
         reservation_data = api.payload
+        slot = reservation_data.get("slot")
 
         if not current_user:
-            return {"error": "User not found"}, 404
+            return {"error": "Unauthorized"}, 403
 
         if not reservation:
             return {"error": "Reservation not found"}, 404
 
         locations = [l.id for l in current_user.locations]
+
         if not reservation.location_id in locations:
             return {"error": "Unauthorized"}, 403
+
+        if reservation_data.get("location_id") or reservation_data.get("user_id"):
+            return {"error": "Non mutable fields"}, 403
+
+        location = facade.get_location(reservation.location_id)
+
+        if slot and slot > location.capacity:
+            return {"error": "Out of bounds slot"}, 400
+
+        if is_slot_occupied(slot):
+            return {"error": "Slot occupied"}, 400
 
         try:
             facade.update_reservation(reservation_id, reservation_data)
@@ -142,8 +159,8 @@ class ReservationResource(Resource):
         current_user = facade.get_user(get_jwt_identity())
         reservation = facade.get_reservation(reservation_id)
 
-        if not current_user:
-            return {"error": "User not found"}, 404
+        if not current_user or not current_user.is_admin:
+            return {"error": "Unauthorized"}, 403
 
         if not reservation:
             return {"error": "Reservation not found"}, 404
