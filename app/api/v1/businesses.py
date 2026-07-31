@@ -10,7 +10,7 @@ business_model = api.model(
     "Business",
     {
         "name": fields.String(required=True, descripion="Name of the businesses"),
-        "description": fields.String(required=False, description="Description"),
+        "description": fields.String(required=True, description="Description"),
         "email": fields.String(required=True, description="Business email"),
         "phone_number": fields.String(
             required=True, description="Business phone number"
@@ -40,7 +40,7 @@ class BusinessList(Resource):
         try:
             business_data["owner_id"] = current_user.id
             new_business = facade.create_business(business_data)
-        except ValueError as e:
+        except (ValueError, TypeError) as e:
             return {"error": str(e)}, 400
 
         return new_business.as_dict(), 201
