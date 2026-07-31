@@ -67,7 +67,7 @@ class ReservationList(Resource):
         try:
             reservation_data["user_id"] = current_user.id
             new_reservation = facade.create_reservation(reservation_data)
-        except ValueError as e:
+        except (ValueError, TypeError) as e:
             return {"error": str(e)}, 400
 
         return new_reservation.as_dict(), 200
@@ -145,7 +145,7 @@ class ReservationResource(Resource):
 
         try:
             facade.update_reservation(reservation_id, reservation_data)
-        except ValueError as e:
+        except (ValueError, TypeError) as e:
             return {"error": str(e)}, 400
 
         return {"message": "Reservation updated successfully"}, 200
