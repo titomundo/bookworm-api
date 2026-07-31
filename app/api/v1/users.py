@@ -50,7 +50,7 @@ class UserList(Resource):
 
         try:
             new_user = facade.create_user(user_data)
-        except ValueError as e:
+        except (ValueError, TypeError) as e:
             return {"error": str(e)}, 400
 
         return new_user.as_dict(), 201
@@ -98,7 +98,7 @@ class UserResource(Resource):
 
         try:
             user = facade.update_user(user_id, user_data)
-        except ValueError as e:
+        except (ValueError, TypeError) as e:
             return {"error": str(e)}, 400
 
         if not user:
