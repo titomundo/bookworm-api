@@ -10,7 +10,7 @@ location_model = api.model(
     "Location",
     {
         "name": fields.String(required=True, descripion="Name of the location"),
-        "description": fields.String(required=False, description="Description"),
+        "description": fields.String(required=True, description="Description"),
         "capacity": fields.Integer(
             required=True, description="Max number of tables, offices, slots, etc"
         ),
@@ -49,7 +49,7 @@ class LocationList(Resource):
             location_data["owner_id"] = current_user.id
             location_data["users"] = [current_user]
             new_location = facade.create_location(location_data)
-        except ValueError as e:
+        except (ValueError, TypeError) as e:
             return {"error": str(e)}, 400
 
         return new_location.as_dict(), 200
