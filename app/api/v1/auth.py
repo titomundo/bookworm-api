@@ -1,7 +1,7 @@
 import datetime
 
 from flask import jsonify, make_response
-from flask_jwt_extended import create_access_token, set_access_cookies
+from flask_jwt_extended import create_access_token
 from flask_restx import Namespace, Resource, fields
 
 from app.services import facade
@@ -35,9 +35,9 @@ class Login(Resource):
     def post(self):
         """Authenticate user and return a JWT token"""
         credentials = api.payload
-        user = facade.get_user_by_email(credentials["email"])
+        user = facade.get_user_by_email(credentials.get("email"))
 
-        if not user or not user.verify_password(credentials["password"]):
+        if not user or not user.verify_password(credentials.get("password")):
             return {"error": "Invalid credentials"}, 401
 
         access_token = create_access_token(
@@ -46,12 +46,24 @@ class Login(Resource):
             expires_delta=datetime.timedelta(days=1),
         )
 
+        """
+        TODO: implement login as cookie when using https
+
         response = make_response("login sucessfull")
         response.status_code = 200
-        response.set_cookie("Authorization", f"Bearer {access_token}", secure=True)
-
+        response.set_cookie(
+            key="Authorization",
+            value=access_token,
+            httponly=True,
+            max_age=datetime.timedelta(days=1),
+            partitioned=True,
+            secure=False,
+        )
+    
         return response
+        """
 
+        return {"access_token": access_token}, 200
 
 @api.route("/register")
 class Register(Resource):
