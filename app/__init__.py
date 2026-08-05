@@ -37,14 +37,14 @@ def create_app(config_class="config.DevelopmentConfig"):
         doc="/api/v1/",
     )
 
-    CORS(app)
+    CORS(app, supports_credentials=True, resources={r"/api/*": {"origins": "http://localhost:5173"}})
 
     # Move imports down here to prevent circular import errors
     from app.api.v1.auth import api as auth_ns
     from app.api.v1.businesses import api as businesses_ns
-    from app.api.v1.users import api as users_ns
     from app.api.v1.locations import api as locations_ns
     from app.api.v1.reservations import api as reservations_ns
+    from app.api.v1.users import api as users_ns
 
     # Placeholder for API namespaces (endpoints will be added later)
     api.add_namespace(users_ns, path="/api/v1/users")
