@@ -1,5 +1,3 @@
-import re
-
 from flask_jwt_extended import get_jwt_identity
 from flask_jwt_extended.view_decorators import jwt_required
 from flask_restx import Namespace, Resource, fields
@@ -30,14 +28,16 @@ reservation_model = api.model(
 
 
 def is_slot_occupied(slot, location_id):
-    reservation = (
+    reservations = (
         Reservation.query.filter(Reservation.slot == slot)
         .filter((Reservation.status == "pending") | (Reservation.status == "ongoing"))
-        .first()
+        .all()
     )
 
-    if reservation.location_id == location_id:
-        return True
+    for r in reservations:
+        if r.location_id == location_id:
+            print(r)
+            return True
 
     return False
 
