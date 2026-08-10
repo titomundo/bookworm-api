@@ -11,7 +11,7 @@ class Location(BaseModel):
     description = db.Column("description", db.String(512), nullable=False)
     capacity = db.Column(
         db.Integer,
-        db.CheckConstraint("capacity > 0 AND capacity < 100"),
+        db.CheckConstraint("capacity > 0 AND capacity < 101"),
         nullable=False,
     )
     owner_id = db.Column("owner_id", db.String(36), db.ForeignKey("users.id"), nullable=False)
@@ -37,7 +37,7 @@ class Location(BaseModel):
 
     @validates("capacity")
     def validate_capacity(self, key, capacity):
-        if capacity <= 1 or capacity > 100:
+        if capacity < 1 or capacity >= 100:
             raise ValueError("Capacity must be between 1 and 100")
 
         return capacity
