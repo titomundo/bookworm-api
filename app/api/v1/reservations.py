@@ -1,7 +1,10 @@
+import re
+
 from flask_jwt_extended import get_jwt_identity
 from flask_jwt_extended.view_decorators import jwt_required
 from flask_restx import Namespace, Resource, fields
 
+from app.models.location import Location
 from app.models.reservation import Reservation
 from app.services import facade
 
@@ -26,12 +29,14 @@ reservation_model = api.model(
 )
 
 
-def is_slot_occupied(slot):
-    if (
+def is_slot_occupied(slot, location_id):
+    reservation = (
         Reservation.query.filter(Reservation.slot == slot)
         .filter((Reservation.status == "pending") | (Reservation.status == "ongoing"))
         .first()
-    ):
+    )
+
+    if reservation.location_id == location_id:
         return True
 
     return False
@@ -49,7 +54,8 @@ class ReservationList(Resource):
         """Create reservation"""
         reservation_data = api.payload
         current_user = facade.get_user(get_jwt_identity())
-        location = facade.get_location(reservation_data.get("location_id"))
+        location_id = reservation_data.get("location_id")
+        location = facade.get_location(location_id)
         slot = reservation_data.get("slot")
 
         if not current_user or not current_user.is_admin:
@@ -61,7 +67,7 @@ class ReservationList(Resource):
         if slot > location.capacity:
             return {"error": "Out of bounds slot"}, 400
 
-        if is_slot_occupied(slot):
+        if is_slot_occupied(slot, location_id):
             return {"error": "Slot occupied"}, 400
 
         try:
