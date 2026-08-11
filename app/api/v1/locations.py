@@ -101,7 +101,7 @@ class LocationResource(Resource):
     @api.response(403, "Unauthorized")
     @api.response(404, "Location not found")
     def put(self, location_id):
-        """Get location by ID"""
+        """Update location by ID"""
         location_data = api.payload
         current_user = facade.get_user(get_jwt_identity())
         business = facade.get_business(location_data.get("business_id"))
