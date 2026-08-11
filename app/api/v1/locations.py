@@ -97,6 +97,35 @@ class LocationResource(Resource):
         return location.as_dict(), 200
 
     @jwt_required()
+    @api.response(200, "Location details retrieved successfully")
+    @api.response(403, "Unauthorized")
+    @api.response(404, "Location not found")
+    def put(self, location_id):
+        """Get location by ID"""
+        location_data = api.payload
+        current_user = facade.get_user(get_jwt_identity())
+        business = facade.get_business(location_data.get("business_id"))
+
+        if not current_user:
+            return {"error": "user not found"}, 404
+
+        if not current_user.is_admin:
+            return {"error": "Unauthorized"}, 403
+
+        if not business:
+            return {"error": "business not found"}, 404
+
+        if current_user.id != business.owner_id:
+            return {"error": "Unauthorized"}, 403
+
+        try:
+            location = facade.update_location(location_id, location_data)
+        except (ValueError, TypeError) as e:
+            return {"error": str(e)}, 400
+
+        return location.as_dict(), 200
+
+    @jwt_required()
     @api.response(200, "Location deleted successfully")
     @api.response(404, "Location or user not found")
     @api.response(403, "Unauthorized")

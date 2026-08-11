@@ -2,7 +2,6 @@ from flask_jwt_extended import get_jwt_identity
 from flask_jwt_extended.view_decorators import jwt_required
 from flask_restx import Namespace, Resource, fields
 
-from app.models.location import Location
 from app.models.reservation import Reservation
 from app.services import facade
 
@@ -125,6 +124,7 @@ class ReservationResource(Resource):
         current_user = facade.get_user(get_jwt_identity())
         reservation = facade.get_reservation(reservation_id)
         reservation_data = api.payload
+        location_id = reservation_data.get("location_id")
         slot = reservation_data.get("slot")
 
         if not current_user:
@@ -138,18 +138,25 @@ class ReservationResource(Resource):
         if not reservation.location_id in locations:
             return {"error": "Unauthorized"}, 403
 
-        if reservation_data.get("location_id") or reservation_data.get("user_id"):
+        if reservation_data.get("user_id"):
             return {"error": "Non mutable fields"}, 403
 
-        location = facade.get_location(reservation.location_id)
+        location = facade.get_location(location_id)
+
+        if not location:
+            return {"error": "Location not found"}, 404
 
         if slot and slot > location.capacity:
             return {"error": "Out of bounds slot"}, 400
 
-        if is_slot_occupied(slot):
+        if (
+            is_slot_occupied(slot, location_id)
+            and reservation_data.get("status") == "ongoing"
+        ):
             return {"error": "Slot occupied"}, 400
 
         try:
+            reservation_data.pop("location_id")
             facade.update_reservation(reservation_id, reservation_data)
         except (ValueError, TypeError) as e:
             return {"error": str(e)}, 400

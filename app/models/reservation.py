@@ -59,6 +59,7 @@ class Reservation(BaseModel):
             "date": self.date.isoformat(),
             "slot": self.slot,
             "status": self.status,
+            "location": self.Location.as_dict(),
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat(),
         }

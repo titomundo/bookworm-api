@@ -14,7 +14,9 @@ class Location(BaseModel):
         db.CheckConstraint("capacity > 0 AND capacity < 101"),
         nullable=False,
     )
-    owner_id = db.Column("owner_id", db.String(36), db.ForeignKey("users.id"), nullable=False)
+    owner_id = db.Column(
+        "owner_id", db.String(36), db.ForeignKey("users.id"), nullable=False
+    )
     business_id = db.Column(
         "business_id", db.String(36), db.ForeignKey("businesses.id"), nullable=False
     )
@@ -48,6 +50,7 @@ class Location(BaseModel):
             "name": self.name,
             "description": self.description,
             "capacity": self.capacity,
+            "business_id": self.business_id,
             "owner_id": self.owner_id,
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat(),
