@@ -82,6 +82,37 @@ class BusinessResource(Resource):
         return business.as_dict(), 200
 
     @jwt_required()
+    @api.response(201, "Business successfully created")
+    @api.response(400, "Invalid input data")
+    @api.response(403, "Unauthorized")
+    def put(self, business_id):
+        business_data = api.payload
+        current_user = facade.get_user(get_jwt_identity())
+        current_business = facade.get_business(business_id)
+
+        if not current_business:
+            return {"error": "business not found"}, 404
+
+        if not current_user:
+            return {"error": "user not found"}, 404
+
+        if not current_user.is_admin:
+            return {"error": "Unauthorized"}, 403
+
+        if "email" in business_data:
+            business_data.pop("email")
+
+        if "phone_number" in business_data:
+            business_data.pop("phone_number")
+
+        try:
+            business = facade.update_business(business_id, business_data)
+        except (ValueError, TypeError) as e:
+            return {"error": str(e)}, 400
+
+        return business.as_dict(), 201
+
+    @jwt_required()
     @api.response(200, "Business deleted successfully")
     @api.response(404, "Business not found")
     @api.response(403, "Unauthorized")
