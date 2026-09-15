@@ -1,9 +1,10 @@
 from app.database.repository import (BusinessRepository, LocationRepository,
-                                     ReservationRepository, UserRepository)
-from app.models import business, location
+                                     ReservationRepository, RoleRepository,
+                                     UserRepository)
 from app.models.business import Business
 from app.models.location import Location
 from app.models.reservation import Reservation
+from app.models.role import Role
 from app.models.user import User
 
 
@@ -13,6 +14,7 @@ class Facade:
         self.business_repo = BusinessRepository()
         self.location_repo = LocationRepository()
         self.reservation_repo = ReservationRepository()
+        self.role_repo = RoleRepository()
 
     """User Facade Methods"""
 
@@ -95,3 +97,16 @@ class Facade:
 
     def delete_reservation(self, reservation_id):
         self.reservation_repo.delete(reservation_id)
+
+    """Role Facade Methods"""
+
+    def create_role(self, role_data) -> Role | None:
+        role = Role(**role_data)
+        self.role_repo.add(role)
+        return role
+
+    def get_all_roles(self) -> list[Role]:
+        return self.role_repo.get_all()
+
+    def get_role_by_name(self, name) -> Role | None:
+        return self.role_repo.get_by_attribute("name", name)

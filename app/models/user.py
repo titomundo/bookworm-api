@@ -2,6 +2,7 @@ from sqlalchemy.orm import validates
 
 from app import bcrypt, db, is_valid_email
 from app.models.base import BaseModel
+from app.models.role import Role
 
 
 class User(BaseModel):
@@ -11,7 +12,9 @@ class User(BaseModel):
     last_name = db.Column("last_name", db.String(50), nullable=False)
     email = db.Column("email", db.String(120), nullable=False, unique=True)
     password = db.Column("password", db.String(128), nullable=False)
-    is_admin = db.Column("is_admin", db.Boolean, default=False)
+    role_id = db.Column(
+        "role", db.String(36), db.ForeignKey("roles.id"), nullable=False
+    )
 
     businesses = db.relationship("Business", backref="owner", lazy=True)
 
@@ -78,13 +81,16 @@ class User(BaseModel):
         """Verifies if the provided password matches the hashed password."""
         return bcrypt.check_password_hash(self.password, password)
 
+    def get_role(self):
+        return Role.query.filter(Role.id == self.role_id).first()
+
     def as_dict(self):
         return {
             "id": self.id,
             "first_name": self.first_name,
             "last_name": self.last_name,
             "email": self.email,
-            "is_admin": self.is_admin,
+            "role": self.get_role().as_dict(),
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat(),
         }

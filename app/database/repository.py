@@ -4,6 +4,7 @@ from app import db
 from app.models.business import Business
 from app.models.location import Location
 from app.models.reservation import Reservation
+from app.models.role import Role
 from app.models.user import User
 
 
@@ -101,3 +102,8 @@ class ReservationRepository(SQLAlchemyRepository):
 class LocationRepository(SQLAlchemyRepository):
     def __init__(self):
         super().__init__(Location)
+
+
+class RoleRepository(SQLAlchemyRepository):
+    def __init__(self):
+        super().__init__(Role)
