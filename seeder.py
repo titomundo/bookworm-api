@@ -9,7 +9,6 @@ roles = [
     {"name": "Employee", "description": "Regular User"},
 ]
 
-
 with app.app_context():
     for role in roles:
         try:
@@ -17,23 +16,23 @@ with app.app_context():
         except IntegrityError as e:
             print(e)
 
-        role = facade.get_role_by_name("Admin")
+    role = facade.get_role_by_name("Admin")
 
-        if not role:
-            raise ValueError()
+    if not role:
+        raise ValueError()
 
-        admin_user = {
-            "first_name": "Admin",
-            "last_name": "Bookworm",
-            "email": "admin@bookworm.io",
-            "password": "bookwormadmin",
-            "role_id": role.id,
-        }
+    admin_user = {
+        "first_name": "Admin",
+        "last_name": "Bookworm",
+        "email": "admin@bookworm.io",
+        "password": "bookwormadmin",
+        "role_id": role.id,
+    }
 
-        try:
-            facade.create_user(admin_user)
-        except (ValueError, TypeError) as e:
-            print(e)
+    try:
+        facade.create_user(admin_user)
+    except (ValueError, TypeError) as e:
+        print(e)
 
     print(facade.get_all_roles())
     print(facade.get_all_users())
