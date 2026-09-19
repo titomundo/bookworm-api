@@ -1,4 +1,4 @@
-from flask_jwt_extended import get_jwt, get_jwt_identity
+from flask_jwt_extended import current_user, get_jwt, get_jwt_identity
 from flask_jwt_extended.view_decorators import jwt_required
 from flask_restx import Namespace, Resource, fields
 
@@ -55,20 +55,33 @@ class UserList(Resource):
 
         return new_user.as_dict(), 201
 
+    @jwt_required()
     @api.response(200, "List of users")
+    @api.response(403, "Admin privileges required")
     def get(self):
         """Get a list of all users"""
+        user = facade.get_user(get_jwt_identity())
+
+        if not user or user.role_name() != "Admin":
+            return {"error": "Admin privileges required"}, 403
+
         users = [u.as_dict() for u in facade.get_all_users()]
         return users, 200
 
 
 @api.route("/<user_id>")
 class UserResource(Resource):
+    @jwt_required()
     @api.response(200, "User details retrieved successfully")
+    @api.response(403, "Admin privileges required")
     @api.response(404, "User not found")
     def get(self, user_id):
         """Get user details by ID"""
         user = facade.get_user(user_id)
+        current_user = facade.get_user(get_jwt_identity())
+
+        if not current_user or current_user.role_name() != "Admin":
+            return {"error": "Admin privileges required"}, 403
 
         if not user:
             return {"error": "User not found"}, 404
@@ -85,9 +98,9 @@ class UserResource(Resource):
         """Update an existing user"""
         user_data = api.payload
         email = user_data.get("email")
-        current_user = get_jwt()
+        current_user = facade.get_user(get_jwt_identity())
 
-        if not current_user.get("is_admin"):
+        if not current_user or current_user.role_name() != "Admin":
             return {"error": "Admin privileges required"}, 403
 
         if email:
