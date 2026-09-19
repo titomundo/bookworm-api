@@ -9,6 +9,9 @@ class Role(BaseModel):
     description = db.Column("description", db.String(128), nullable=True)
     users = db.relationship("User", backref="role", lazy=True)
 
+    def get_name(self):
+        return self.name
+
     def as_dict(self):
         return {
             "name": self.name,
