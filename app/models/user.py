@@ -81,8 +81,9 @@ class User(BaseModel):
         """Verifies if the provided password matches the hashed password."""
         return bcrypt.check_password_hash(self.password, password)
 
-    def get_role(self):
-        return Role.query.filter(Role.id == self.role_id).first()
+    def role_name(self):
+        role = Role.query.filter(Role.id == self.role_id).first()
+        return role.name
 
     def as_dict(self):
         return {
@@ -90,7 +91,7 @@ class User(BaseModel):
             "first_name": self.first_name,
             "last_name": self.last_name,
             "email": self.email,
-            "role": self.get_role().as_dict(),
+            "role": self.role_name(),
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat(),
         }

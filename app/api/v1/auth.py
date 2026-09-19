@@ -42,7 +42,7 @@ class Login(Resource):
 
         access_token = create_access_token(
             identity=str(user.id),
-            additional_claims={"is_admin": user.is_admin},
+            additional_claims={"role": user.role_name()},
             expires_delta=datetime.timedelta(days=1),
         )
 
