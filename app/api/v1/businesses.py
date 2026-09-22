@@ -34,7 +34,7 @@ class BusinessList(Resource):
         if not current_user:
             return {"error": "user not found"}, 404
 
-        if not current_user.is_admin:
+        if not current_user.role_name() == "Employee":
             return {"error": "Unauthorized"}, 403
 
         try:
