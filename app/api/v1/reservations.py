@@ -57,7 +57,10 @@ class ReservationList(Resource):
         location = facade.get_location(location_id)
         slot = reservation_data.get("slot")
 
-        if not current_user or not current_user.is_admin:
+        if not current_user:
+            return {"error": "user not found"}, 403
+
+        if current_user.role_name() == "Employee":
             return {"error": "Unauthorized"}, 403
 
         if not location:

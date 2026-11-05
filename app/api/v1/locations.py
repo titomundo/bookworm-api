@@ -34,9 +34,9 @@ class LocationList(Resource):
         business = facade.get_business(location_data.get("business_id"))
 
         if not current_user:
-            return {"error": "user not found"}, 404
+            return {"error": "user not found"}, 403
 
-        if not current_user.is_admin:
+        if current_user.role_name() == "Employee":
             return {"error": "Unauthorized"}, 403
 
         if not business:
