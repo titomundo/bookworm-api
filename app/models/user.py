@@ -83,7 +83,7 @@ class User(BaseModel):
 
     def role_name(self):
         role = Role.query.filter(Role.id == self.role_id).first()
-        return role.name
+        return role.get_name()
 
     def as_dict(self):
         return {
