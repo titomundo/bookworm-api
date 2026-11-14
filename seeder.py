@@ -3,6 +3,9 @@ from sqlalchemy.exc import IntegrityError
 from app.services import facade
 from run import app
 
+# Creates all roles to start the application
+# also adds some dummy users for testing and setup
+
 roles = [
     {"name": "Admin", "description": "Super User"},
     {"name": "Owner", "description": "Business Owner"},
@@ -16,23 +19,41 @@ with app.app_context():
         except IntegrityError as e:
             print(e)
 
-    role = facade.get_role_by_name("Admin")
+    users = [
+        {
+            "first_name": "Admin",
+            "last_name": "Bookworm",
+            "email": "admin@bookworm.io",
+            "password": "password",
+            "role_id": facade.get_role_by_name("Admin").id,
+        },
+        {
+            "first_name": "Owner",
+            "last_name": "Bookworm",
+            "email": "owner@bookworm.io",
+            "password": "password",
+            "role_id": facade.get_role_by_name("Owner").id,
+        },
+        {
+            "first_name": "Employee",
+            "last_name": "Bookworm",
+            "email": "employee@bookworm.io",
+            "password": "password",
+            "role_id": facade.get_role_by_name("Employee").id,
+        },
+    ]
 
-    if not role:
-        raise ValueError()
+    for user in users:
+        try:
+            facade.create_user(user)
+        except (ValueError, TypeError) as e:
+            print(e)
 
-    admin_user = {
-        "first_name": "Admin",
-        "last_name": "Bookworm",
-        "email": "admin@bookworm.io",
-        "password": "bookwormadmin",
-        "role_id": role.id,
-    }
+    all_roles = facade.get_all_roles()
+    all_users = facade.get_all_users()
 
-    try:
-        facade.create_user(admin_user)
-    except (ValueError, TypeError) as e:
-        print(e)
+    for role in all_roles:
+        print(role)
 
-    print(facade.get_all_roles())
-    print(facade.get_all_users())
+    for user in all_users:
+        print(user)
