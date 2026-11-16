@@ -1,4 +1,5 @@
 import datetime
+from os import access
 
 from flask import jsonify, make_response
 from flask_jwt_extended import create_access_token
@@ -33,7 +34,11 @@ class Login(Resource):
     @api.response(200, "Login successful")
     @api.response(401, "Invalid credentials")
     def post(self):
-        """Authenticate user and return a JWT token"""
+        """
+        Authenticate user and return a JWT token
+
+        TODO: implement login as cookie when using https
+        """
         credentials = api.payload
         user = facade.get_user_by_email(credentials.get("email"))
 
@@ -46,24 +51,8 @@ class Login(Resource):
             expires_delta=datetime.timedelta(days=1),
         )
 
-        """
-        TODO: implement login as cookie when using https
-
-        response = make_response("login sucessfull")
-        response.status_code = 200
-        response.set_cookie(
-            key="Authorization",
-            value=access_token,
-            httponly=True,
-            max_age=datetime.timedelta(days=1),
-            partitioned=True,
-            secure=False,
-        )
-    
-        return response
-        """
-
         return {"access_token": access_token}, 200
+
 
 @api.route("/register")
 class Register(Resource):
@@ -73,15 +62,26 @@ class Register(Resource):
     def post(self):
         """Register new user as an admin"""
         user_data = api.payload
-
         email = user_data.get("email")
+
         if facade.get_user_by_email(email):
             return {"error": "Email already registered"}, 400
 
+        role = facade.get_role_by_name("Owner")
+
+        if not role:
+            return {"error", "Role not found"}, 400
+
         try:
-            user_data["is_admin"] = True
+            user_data["role_id"] = role.id
             new_user = facade.create_user(user_data)
         except ValueError as e:
             return {"error": str(e)}, 400
 
-        return new_user.as_dict(), 201
+        access_token = create_access_token(
+            identity=str(new_user.id),
+            additional_claims={"role": new_user.role_name()},
+            expires_delta=datetime.timedelta(days=1),
+        )
+
+        return {"access_token": access_token}, 200
