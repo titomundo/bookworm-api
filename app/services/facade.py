@@ -33,8 +33,14 @@ class Facade:
     def update_user(self, user_id, user_data) -> User | None:
         return self.user_repo.update(user_id, user_data)
 
+    def add_location_to_user(self, user_id, location_id) -> User | None:
+        return self.user_repo.add_location(user_id, location_id)
+
     def get_user_by_email(self, email) -> User | None:
         return self.user_repo.get_user_by_email(email)
+
+    def get_users_by_business(self, business_id) -> list[User]:
+        return self.user_repo.get_users_by_business(business_id)
 
     """Business Facade Methods"""
 

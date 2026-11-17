@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
 
+from sqlalchemy import select
+
 from app import db
 from app.models.business import Business
 from app.models.location import Location
@@ -73,6 +75,9 @@ class UserRepository(SQLAlchemyRepository):
     def get_user_by_email(self, email):
         return self.model.query.filter_by(email=email).first()
 
+    def get_users_by_business(self, business_id):
+        return self.model.query.join(Business, self.model.id == business_id)
+
     def update(self, obj_id, data):
         obj = self.get(obj_id)
         if obj:
@@ -84,6 +89,16 @@ class UserRepository(SQLAlchemyRepository):
 
             db.session.commit()
             return obj
+
+    def add_location(self, user_id, location_id):
+        user = self.get(user_id)
+        location = db.session.query(Location).filter_by(id=location_id).first()
+
+        if user:
+            user.locations.append(location)
+            db.session.commit()
+
+        return user
 
 
 class BusinessRepository(SQLAlchemyRepository):

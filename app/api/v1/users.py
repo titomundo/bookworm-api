@@ -1,3 +1,5 @@
+from typing import Required
+
 from flask_jwt_extended import current_user, get_jwt, get_jwt_identity
 from flask_jwt_extended.view_decorators import jwt_required
 from flask_restx import Namespace, Resource, fields
@@ -16,6 +18,8 @@ user_model = api.model(
         "last_name": fields.String(required=True, description="Last name of the user"),
         "email": fields.String(required=True, description="Email of the user"),
         "password": fields.String(required=True, description="User Password"),
+        # Only needed when users are being added as employee
+        "location_id": fields.String(required=True, description="Location id"),
     },
 )
 
@@ -42,15 +46,31 @@ class UserList(Resource):
     @api.response(400, "Invalid input data")
     @api.response(403, "Admin privileges required")
     def post(self):
-        """Register a new user"""
+        """Register a new employee and adds it to a location"""
         user_data = api.payload
         user = facade.get_user(get_jwt_identity())
+        location_id = user_data.get("location_id")
+        user_data.pop("location_id")
 
         if not user or user.role_name() != "Admin":
             return {"error": "Admin privileges required"}, 403
 
+        if not facade.get_location(location_id):
+            return {"error", "Location not found"}, 400
+
+        role = facade.get_role_by_name("Employee")
+
+        if not role:
+            return {"error", "Role not found"}, 400
+
+        user_data["role_id"] = role.id
+
         try:
             new_user = facade.create_user(user_data)
+
+            if new_user:
+                facade.add_location_to_user(new_user.id, location_id)
+
         except (ValueError, TypeError) as e:
             return {"error": str(e)}, 400
 
@@ -68,6 +88,25 @@ class UserList(Resource):
 
         users = [u.as_dict() for u in facade.get_all_users()]
         return users, 200
+
+
+@api.route("/employees")
+class EmployeeList(Resource):
+    @jwt_required()
+    @api.response(200, "List of users")
+    @api.response(403, "Admin privileges required")
+    def get(self):
+        """Get a list of all employees for that owner"""
+        user = facade.get_user(get_jwt_identity())
+
+        if not user or user.role_name() != "Admin":
+            return {"error": "Admin privileges required"}, 403
+
+        business = user.businesses[0]
+        users = facade.get_users_by_business(business.id)
+
+        employees = [u.as_dict() for u in users]
+        return employees, 200
 
 
 @api.route("/<user_id>")
