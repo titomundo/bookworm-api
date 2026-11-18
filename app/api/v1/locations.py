@@ -148,3 +148,28 @@ class LocationResource(Resource):
 
         facade.delete_location(location_id)
         return {"message": "Location deleted successfully"}, 200
+
+
+@api.route("/<location_id>/employees")
+class LocationEmployeesList(Resource):
+    @jwt_required()
+    @api.response(200, "List of users")
+    @api.response(403, "Admin privileges required")
+    def get(self, location_id):
+        """Get a list of all employees for that location"""
+        user = facade.get_user(get_jwt_identity())
+        location = facade.get_location(location_id)
+
+        if not user:
+            return {"error": "user not found"}, 404
+
+        if not location:
+            return {"error": "location not found"}, 404
+
+        if user.role_name() != "Admin" or user.id != location.owner_id:
+            return {"error": "Admin privileges required"}, 403
+
+        users = location.users
+        employees = [u.as_dict() for u in users]
+
+        return employees, 200

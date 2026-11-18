@@ -90,25 +90,6 @@ class UserList(Resource):
         return users, 200
 
 
-@api.route("/employees")
-class EmployeeList(Resource):
-    @jwt_required()
-    @api.response(200, "List of users")
-    @api.response(403, "Admin privileges required")
-    def get(self):
-        """Get a list of all employees for that owner"""
-        user = facade.get_user(get_jwt_identity())
-
-        if not user or user.role_name() != "Admin":
-            return {"error": "Admin privileges required"}, 403
-
-        business = user.businesses[0]
-        users = facade.get_users_by_business(business.id)
-
-        employees = [u.as_dict() for u in users]
-        return employees, 200
-
-
 @api.route("/<user_id>")
 class UserResource(Resource):
     @jwt_required()
