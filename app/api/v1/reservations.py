@@ -35,7 +35,6 @@ def is_slot_occupied(slot, location_id):
 
     for r in reservations:
         if r.location_id == location_id:
-            print(r)
             return True
 
     return False
