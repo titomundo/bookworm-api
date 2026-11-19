@@ -119,7 +119,7 @@ class UserResource(Resource):
         """Update an existing user"""
         user_data = api.payload
         email = user_data.get("email")
-        current_user = facade.get_user(user_id)
+        current_user = facade.get_user(get_jwt_identity())
 
         if not user_data.get("first_name"):
             return {"error": "missing first name argument"}, 400
@@ -127,7 +127,13 @@ class UserResource(Resource):
         if not user_data.get("last_name"):
             return {"error": "missing last name argument"}, 400
 
-        if not current_user or current_user.role_name() != "Admin":
+        if not current_user:
+            return {"error": "user not found"}, 404
+
+        if (
+            current_user.id != user_data.get("id")
+            and current_user.role_name() != "Admin"
+        ):
             return {"error": "Admin privileges required"}, 403
 
         if email:
