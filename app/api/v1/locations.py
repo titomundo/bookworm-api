@@ -66,10 +66,7 @@ class LocationList(Resource):
 
         locations = []
         for l in current_user.locations:
-            location = l.as_dict()
-
-            if location["owner_id"] == current_user.id:
-                locations.append(location)
+            locations.append(l.as_dict())
 
         return locations, 200
 
