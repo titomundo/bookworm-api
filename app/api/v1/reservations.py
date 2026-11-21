@@ -26,20 +26,6 @@ reservation_model = api.model(
 )
 
 
-def is_slot_occupied(slot, location_id):
-    reservations = (
-        Reservation.query.filter(Reservation.slot == slot)
-        .filter((Reservation.status == "pending") | (Reservation.status == "ongoing"))
-        .all()
-    )
-
-    for r in reservations:
-        if r.location_id == location_id:
-            return True
-
-    return False
-
-
 @api.route("/")
 class ReservationList(Resource):
     @jwt_required()
@@ -67,9 +53,6 @@ class ReservationList(Resource):
 
         if slot > location.capacity:
             return {"error": "Out of bounds slot"}, 400
-
-        if is_slot_occupied(slot, location_id):
-            return {"error": "Slot occupied"}, 400
 
         try:
             reservation_data["user_id"] = current_user.id
@@ -150,12 +133,6 @@ class ReservationResource(Resource):
 
         if slot and slot > location.capacity:
             return {"error": "Out of bounds slot"}, 400
-
-        if (
-            is_slot_occupied(slot, location_id)
-            and reservation_data.get("status") == "ongoing"
-        ):
-            return {"error": "Slot occupied"}, 400
 
         try:
             reservation_data.pop("location_id")
