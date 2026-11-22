@@ -1,0 +1,2 @@
+APP_MODE="develop"
+SECRET_KEY="super_secret_hidden_missing_key"

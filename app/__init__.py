@@ -1,5 +1,7 @@
+import os
 import re
 
+from dotenv import load_dotenv
 from flask import Flask
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
@@ -21,7 +23,16 @@ def is_valid_email(email):
     return True
 
 
-def create_app(config_class="config.DevelopmentConfig"):
+# Setup App mode to Development or Production
+load_dotenv()
+dev_config = "config.DevelopmentConfig"
+app_config = "config.ProductionConfig"
+
+if os.getenv("APP_MODE") == "develop":
+    app_config = dev_config
+
+
+def create_app(config_class=app_config):
     app = Flask(__name__)
     app.config.from_object(config_class)
 
@@ -37,7 +48,11 @@ def create_app(config_class="config.DevelopmentConfig"):
         doc="/api/v1/",
     )
 
-    CORS(app, supports_credentials=True, resources={r"/api/*": {"origins": "http://localhost:5173"}})
+    CORS(
+        app,
+        supports_credentials=True,
+        resources={r"/api/*": {"origins": "http://localhost:5173"}},
+    )
 
     # Move imports down here to prevent circular import errors
     from app.api.v1.auth import api as auth_ns
