@@ -151,3 +151,21 @@ class UserResource(Resource):
             return {"error": "User not found"}, 404
 
         return {"message": "User updated successfully"}, 200
+
+    @jwt_required()
+    def delete(self, user_id):
+        current_user = facade.get_user(get_jwt_identity())
+        user = facade.get_user(user_id)
+
+        if not current_user or current_user.role_name() == "Employee":
+            return {"error": "Unauthorized"}, 403
+
+        if not user:
+            return {"error": "User not found"}, 404
+
+        try:
+            facade.delete_user(user_id)
+        except (ValueError, TypeError) as e:
+            return {"error": str(e)}, 400
+
+        return {"message": "User deleted successfully"}, 200

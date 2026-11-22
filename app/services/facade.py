@@ -1,3 +1,5 @@
+from sqlalchemy import delete
+
 from app.database.repository import (BusinessRepository, LocationRepository,
                                      ReservationRepository, RoleRepository,
                                      UserRepository)
@@ -41,6 +43,9 @@ class Facade:
 
     def get_users_by_business(self, business_id) -> list[User]:
         return self.user_repo.get_users_by_business(business_id)
+
+    def delete_user(self, user_id):
+        self.user_repo.delete(user_id)
 
     """Business Facade Methods"""
 
