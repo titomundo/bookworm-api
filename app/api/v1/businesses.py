@@ -99,7 +99,10 @@ class BusinessResource(Resource):
         if not current_user:
             return {"error": "user not found"}, 404
 
-        if not current_user.is_admin:
+        if (
+            current_business.owner_id != current_user.id
+            and current_user.role_name() != "Admin"
+        ):
             return {"error": "Unauthorized"}, 403
 
         if "email" in business_data:
@@ -150,7 +153,7 @@ class BusinessLocationList(Resource):
         if not current_user:
             return {"error": "user not found"}, 404
 
-        if not current_user.is_admin:
+        if current_user.role_name() != "Admin":
             return {"error": "Unauthorized"}, 403
 
         if not business:
