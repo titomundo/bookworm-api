@@ -37,6 +37,9 @@ class BusinessList(Resource):
         if current_user.role_name() == "Employee":
             return {"error": "Unauthorized"}, 403
 
+        if len(current_user.businesses) != 0:
+            return {"error": "Users can only have one business"}, 400
+
         try:
             business_data["owner_id"] = current_user.id
             new_business = facade.create_business(business_data)
