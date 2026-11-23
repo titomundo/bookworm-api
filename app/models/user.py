@@ -16,7 +16,9 @@ class User(BaseModel):
         "role", db.String(36), db.ForeignKey("roles.id"), nullable=False
     )
 
-    businesses = db.relationship("Business", backref="owner", lazy=True)
+    businesses = db.relationship(
+        "Business", backref="owner", lazy=True, cascade="all,delete"
+    )
 
     user_location = db.Table(
         "user_location",

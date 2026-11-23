@@ -44,7 +44,7 @@ class ReservationList(Resource):
 
         if not current_user:
             return {"error": "user not found"}, 403
-        
+
         if not location:
             return {"error": "location not found"}, 404
 

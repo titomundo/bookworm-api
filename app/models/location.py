@@ -18,10 +18,15 @@ class Location(BaseModel):
         "owner_id", db.String(36), db.ForeignKey("users.id"), nullable=False
     )
     business_id = db.Column(
-        "business_id", db.String(36), db.ForeignKey("businesses.id"), nullable=False
+        "business_id",
+        db.String(36),
+        db.ForeignKey("businesses.id"),
+        nullable=False,
     )
 
-    reservations = db.relationship("Reservation", backref="Location", lazy=True)
+    reservations = db.relationship(
+        "Reservation", backref="Location", lazy=True, cascade="all,delete"
+    )
 
     @validates("name")
     def validate_name(self, key, name):
