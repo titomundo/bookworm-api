@@ -106,7 +106,10 @@ class LocationResource(Resource):
         if not current_user:
             return {"error": "user not found"}, 404
 
-        if not current_user.is_admin:
+        if (
+            location_data.get("owner_id") != current_user.id
+            and current_user.role_name() != "Admin"
+        ):
             return {"error": "Unauthorized"}, 403
 
         if not business:
