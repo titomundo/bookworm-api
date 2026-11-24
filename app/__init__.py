@@ -51,7 +51,7 @@ def create_app(config_class=app_config):
     CORS(
         app,
         supports_credentials=True,
-        resources={r"/api/*": {"origins": "http://localhost:5173"}},
+        resources={r"/api/*": {"origins": "https://bookworm-api-p9rh.onrender.com"}},
     )
 
     # Move imports down here to prevent circular import errors
